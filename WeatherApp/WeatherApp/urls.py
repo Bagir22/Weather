@@ -24,6 +24,7 @@ schema_view = get_schema_view(title='Weather API')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('weather.urls')),
+    path('api/v1/', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/v1/dj-rest-auth/', include('dj_rest_auth.urls')),
     path('api/v1/dj-rest-auth/registration/',

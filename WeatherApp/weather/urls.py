@@ -1,7 +1,6 @@
-from rest_framework.routers import SimpleRouter
-from .views import UserViewSet
+from django.urls import re_path, include
+from .views import CurrentWeatherAPIView
 
-router = SimpleRouter()
-router.register('users', UserViewSet, basename='users')
-
-urlpatterns = router.urls
+urlpatterns = [
+    re_path(r'^currentWeather/$', CurrentWeatherAPIView.as_view(), name='current_weather'),
+]
