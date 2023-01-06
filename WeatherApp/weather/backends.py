@@ -1,25 +1,15 @@
-from users.models import UserFavourites
-
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
 import requests
 import os
+import ipinfo
+
 from dotenv import load_dotenv
+from users.models import UserFavourites
 
 base_url = 'http://api.openweathermap.org/data/2.5/'
 
 load_dotenv()
 owmAPI = os.getenv('owmAPI')
 city = None
-
 
 base_weather_data = []
 cities = ['New York', 'London', 'Moscow', 'Dubai', 'Tokyo']
@@ -48,10 +38,8 @@ def get_base_weather():
 
 
 def get_user_weather(self, request):
-    # lat = request.GET.get("lat", None)
-    # lon = request.GET.get("lon", None)
-    lat = '56.6388'
-    lon = '47.8908'
+    ip = _get_client_ip(request)
+    lat, lon = _get_user_location(ip)
 
     if lat is not None and lon is not None:
         url = base_url + f'weather?lat={lat}&lon={lon}&units=metric&appid={owmAPI}'
@@ -73,10 +61,6 @@ def get_search_weather(query):
 
 
 def get_user_favourites_weather(self, User):
-    # Add if auth
-    # authentication_classes = [SessionAuthentication, TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
-
     url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='
     url += owmAPI
     base_weather_data = []
@@ -139,3 +123,20 @@ def _get_favourite_cites(User):
         return cities
     else:
         return None
+
+
+def _get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def _get_user_location(ip):
+    handler = ipinfo.getHandler(access_token=os.getenv('ipinfo_token'))
+    #details = handler.getDetails(ip)
+    details = handler.getDetails('146.70.81.130')
+    latitude, longitude = details.latitude, details.longitude
+    return latitude, longitude
